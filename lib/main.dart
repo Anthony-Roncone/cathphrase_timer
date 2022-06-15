@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       title: "Timer",
+      debugShowCheckedModeBanner: false,
       home: /*CountdownTimerDemo(),*/home(),
     );
   }
@@ -43,17 +44,22 @@ class _homeState extends State<home> {
   static int rand = Random().nextInt(21) + 5;//random.nextInt(31) + 5;
   static int yeet = 45 + rand;
   Duration myDuration = Duration(seconds: yeet);
+  final player = AudioPlayer();//.setSourceAsset("/assets/BeepBeep.mp3") as AudioPlayer;
+  //player.setSourceAsset('BeepBeep.mp3');
 
   void startTimer() {
     countdownTimer =
         Timer.periodic(const Duration(seconds: 1), (_) => setCountDown());
     timerOn = true;
+    player.play(AssetSource('BeepBeep.mp3'));
+    player.resume();
     //print(yeet);
   }
   // Step 4
   void stopTimer() {
     setState(() => countdownTimer!.cancel());
     timerOn = false;
+    player.pause();
   }
   // Step 5
   void resetTimer() {
@@ -61,6 +67,8 @@ class _homeState extends State<home> {
     rand = Random().nextInt(21)+5;
     yeet = 45 + rand;
     count = 0;
+    player.setPlaybackRate(1.0);
+    player.stop();
     setState(() => myDuration = Duration(seconds: yeet));
   }
 
@@ -81,24 +89,30 @@ class _homeState extends State<home> {
   Widget build(BuildContext context) {
     String strDigits(int n) => n.toString().padLeft(2, '0');
     int time = myDuration.inSeconds.remainder(60);
-    String seconds = "off";
+    //String seconds = "off";
+
     dynamic background = Colors.deepPurple;
     if(timerOn == true) {
+      //player.p
       if (count <= 30) {
-        seconds = "slow";
+        //seconds = "slow";
         background = Colors.green;
+        player.setPlaybackRate(1.0);
       }
       else if (count <= 45) {
-        seconds = "medium";
+        //seconds = "medium";
         background = Colors.yellow;
+        player.setPlaybackRate(1.5);
       }
       else if (count <= yeet) {
-        seconds = "fast";
+        //seconds = "fast";
         background = Colors.orange;
+        player.setPlaybackRate(2.0);
       }
       else {
-        seconds = "done";
+        //seconds = "done";
         background = Colors.red;
+        player.pause();
         timerOn = false;
       }
     }
@@ -110,7 +124,7 @@ class _homeState extends State<home> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(seconds),
+              //Text(seconds),
               Padding(
                 padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 20.0),
                 child: ElevatedButton(onPressed: startTimer, child: Text(start)),
@@ -122,114 +136,6 @@ class _homeState extends State<home> {
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-class CountdownTimerDemo extends StatefulWidget {
-  const CountdownTimerDemo({Key? key}) : super(key: key);
-
-  @override
-  State<CountdownTimerDemo> createState() => _CountdownTimerDemoState();
-}
-
-class _CountdownTimerDemoState extends State<CountdownTimerDemo> {
-  // Step 2
-  Timer? countdownTimer;
-  Duration myDuration = const Duration(days: 5);
-  @override
-  void initState() {
-    super.initState();
-  }
-  /// Timer related methods ///
-  // Step 3
-  void startTimer() {
-    countdownTimer =
-        Timer.periodic(const Duration(seconds: 1), (_) => setCountDown());
-  }
-  // Step 4
-  void stopTimer() {
-    setState(() => countdownTimer!.cancel());
-  }
-  // Step 5
-  void resetTimer() {
-    stopTimer();
-    setState(() => myDuration = const Duration(days: 5));
-  }
-  // Step 6
-  void setCountDown() {
-    const reduceSecondsBy = 1;
-    setState(() {
-      final seconds = myDuration.inSeconds - reduceSecondsBy;
-      if (seconds < 0) {
-        countdownTimer!.cancel();
-      } else {
-        myDuration = Duration(seconds: seconds);
-      }
-    });
-  }
-  @override
-  Widget build(BuildContext context) {
-    String strDigits(int n) => n.toString().padLeft(2, '0');
-    final days = strDigits(myDuration.inDays);
-    // Step 7
-    final hours = strDigits(myDuration.inHours.remainder(24));
-    final minutes = strDigits(myDuration.inMinutes.remainder(60));
-    final seconds = strDigits(myDuration.inSeconds.remainder(60));
-    return Scaffold(
-      //appBar: ...,
-      body: Center(
-        child: Column(
-          children: [
-            const SizedBox(
-              height: 50,
-            ),
-            // Step 8
-            Text(
-              '$hours:$minutes:$seconds',
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                  fontSize: 50),
-            ),
-            const SizedBox(height: 20),
-            // Step 9
-            ElevatedButton(
-              onPressed: startTimer,
-              child: const Text(
-                'Start',
-                style: TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-            ),
-            // Step 10
-            ElevatedButton(
-              onPressed: () {
-                if (countdownTimer == null || countdownTimer!.isActive) {
-                  stopTimer();
-                }
-              },
-              child: const Text(
-                'Stop',
-                style: TextStyle(
-                  fontSize: 30,
-                ),
-              ),
-            ),
-            // Step 11
-            ElevatedButton(
-                onPressed: () {
-                  resetTimer();
-                },
-                child: const Text(
-                  'Reset',
-                  style: TextStyle(
-                    fontSize: 30,
-                  ),
-                ))
-          ],
         ),
       ),
     );
